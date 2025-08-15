@@ -169,7 +169,8 @@ section h2 {
 
 
 ul {
-  list-style-type: disc
+  list-style-type: disc;
+  padding-left: 20px;
 }
 
 * {
@@ -225,4 +226,15 @@ nav {
 
 .menu a:hover {
   color: #4CAF50;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #333;
+  color: white;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  
 }
