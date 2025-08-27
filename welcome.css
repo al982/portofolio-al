@@ -6,7 +6,7 @@ body {
 
 .sidebar {
     width: 220px;
-    background-image: linear-gradient(to bottom, rgb(27, 60, 83),rgb(69, 104, 130));
+    background-image: linear-gradient(to bottom,#4CAF50, #347737);
     color: black;
     height: 100vh;
     padding-top: 20px;

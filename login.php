@@ -9,7 +9,7 @@
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="welcome.css">
+    <link rel="stylesheet" href="form.css">
 </head>
 <body class="login-page">
     <div class="wrapper">

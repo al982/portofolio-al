@@ -1,6 +1,43 @@
 <?php
-$page = isset($_GET['page']) ? $_GET['page'] : 'home';
+session_start();
+
+// Cek login
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+exit;
+}
+// Ambil data user
+$username = $_SESSION['user'];
+// Mengatur halaman yang akan ditampilkan
+$page = $_GET['page'] ?? 'home';
 ?>
+
+<?php
+// Koneksi ke database
+require 'functions.php';
+
+// Ambil semua data siswa
+$siswa = mysqli_query($conn, "SELECT * FROM siswa");
+
+// cek apakah tombol submit sudah ditekan atau belum
+if (isset($_POST['submit'])) {
+    if (tambah($_POST) > 0) {
+        // Jika data berhasil ditambahkan
+        echo "<script>
+                alert('Data berhasil ditambahkan!');
+                document.location.href = 'welcome.php?page=laporan';
+              </script>";
+    } else {
+        // Jika data gagal ditambahkan
+        echo "<script>
+                alert('Data gagal ditambahkan!');
+                document.location.href = 'welcome.php?page=laporan';
+              </script>";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -38,8 +75,41 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
                 echo "<h1>Halaman Nilai</h1><p>Menampilkan data nilai siswa.</p>";
                 break;
 
-            case 'kehadiran':
-                echo "<h1>Halaman Kehadiran</h1><p>Menampilkan data kehadiran siswa.</p>";
+           case 'kehadiran':
+        ?>
+                <table border="1" cellpadding="10" cellspacing="0">
+                    <thead>
+
+                        <tr>
+                            <th>No.</th>
+                            <th>Nama</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // jika data kosong, tampilkan pesan
+                        if (empty($siswa)): ?>
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding:30px;">Data kosong.</td>
+                            </tr>
+                        <?php
+                        // jika data tidak kosong, tampilkan data
+                        else: ?>
+                            <?php
+                            $i = 1;
+                            $siswa = isset($siswa) ? $siswa : [];
+                            foreach ($siswa as $row) : ?>
+                                <tr>
+                                    <td><?= $i; ?></td>
+                                    <td><?= htmlspecialchars($row['nama']); ?></td>
+
+                                </tr>
+                                <?php $i++; ?>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            <?php
                 break;
 
             case 'jadwal':
@@ -53,40 +123,74 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
             case 'laporan':
                 echo "<h1>Halaman Laporan</h1>";
                 ?>
-                <h3>Laporan Siswa</h3>
-                <div class="form-conta">
+                 <h3>Laporan Siswa</h3>
+                <div class="form-container">
                     <h4>Tambah Siswa Baru</h4>
-                    <form action="tambah.php" method="post" enctype="multipart/form-data">
+                    <form action="welcome.php?page=laporan" method="post" enctype="multipart/form-data">
                         <label for="nama">Nama:</label>
                         <input type="text" id="nama" name="nama" required>
 
-                        <label for="nis">NIS:</label> 
+                        <label for="nis">NIS</label>
                         <input type="text" id="nis" name="nis" required>
 
                         <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" required>   
+                        <input type="email" id="email" name="email" required>
 
                         <label for="jurusan">Jurusan:</label>
-                        <input type="text" id="jurusan" name="jurusan" required>
+                        <select id="jurusan" name="jurusan" required>
+                            <option value="">Pilih Jurusan</option>
+                            <option value="Teknik Informatika">Teknik Informatika</option>
+                            <option value="Sistem Informasi">Sistem Informasi</option>
+                        </select>
 
-                        <label for="gambar">Gambar:</label> 
-                        <input type="file" id="gambar" name="gambar" accept="image/*" required> 
-
-                        <input type="submit" value="Tambah Siswa">
+                               <label for="gambar">Gambar:</label>
+                        <input type="file" id="gambar" name="gambar" accept="image/*">
+                        
+                        <button type="submit" name="submit">Tambah Siswa</button>
                     </form>
-
-
-                    <h4>Catatan:</h4>
-                    <p>Pastikan untuk mengupload gambar siswa dengan format yang didukung (misalnya JPG, PNG).</p>
-                    <p>Data siswa yang ditambahkan akan langsung muncul di daftar siswa.</p>        
-                    <p>Untuk mengedit atau menghapus data siswa, gunakan tautan yang tersedia di setiap baris.</p>
-                    <p>Jika ada pertanyaan atau masalah, silakan hubungi admin sekolah.</p>
                 </div>
-                <?php
-                break;
 
+                <h4>Daftar Siswa</h4>
+                <table border="1" cellpadding="10" cellspacing="0">
+                    <tr>
+                        <th>No.</th>
+                        <th>Gambar</th>
+                        <th>NIM</th>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Jurusan</th>
+                        <th>Aksi</th>
+                    </tr>
+                    <?php
+                    $i = 1;
+                    $siswa = isset($siswa) ? $siswa : [];
+                    foreach ($siswa as $row) :
+                    ?>
+                        <tr>
+                            <td><?= $i; ?></td>
+
+
+                            <td><img src="<?= htmlspecialchars($row['gambar']); ?>" width="50"></td>
+                            <td><?= htmlspecialchars($row['nis']); ?></td>
+                            <td><?= htmlspecialchars($row['nama']); ?></td>
+                            <td><?= htmlspecialchars($row['email']); ?></td>
+                            <td><?= htmlspecialchars($row['jurusan']); ?></td>
+                            <td class="aksi-btns">
+                        <a href="view.php?nis=<?= urlencode($s['nis']); ?>" class="view">View</a>
+                        <a href="ubah.php?id=<?= $row["id"]; ?>" class="edit">Ubah</a>
+                        <a href="hapus.php?id=<?= $row["id"];?>" class="delete">Hapus</a>
+                    </td>
+                        </tr>
+                    <?php
+                        $i++;
+                    endforeach;
+                    ?>
+                </table>
+        <?php
+                break;
             default:
-                echo "<h1>404 - Halaman tidak ditemukan!</h1>";
+                echo "<h3>Halaman tidak ditemukan</h3>";
+                break;
         }
         ?>
     </div>
